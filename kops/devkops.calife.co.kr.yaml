@@ -1,0 +1,116 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: devkops.calife.co.kr
+spec:
+  api:
+    loadBalancer:
+      class: Network
+      type: Internal
+  authorization:
+    rbac: {}
+  channel: stable
+  cloudProvider: aws
+  configBase: s3://cal-infra-backend/devkops-state/devkops.calife.co.kr
+  containerRuntime: containerd
+  etcdClusters:
+  - cpuRequest: 200m
+    etcdMembers:
+    - encryptedVolume: true
+      instanceGroup: control-plane-ap-northeast-2a
+      name: a
+    manager:
+      backupRetentionDays: 90
+    memoryRequest: 100Mi
+    name: main
+  - cpuRequest: 100m
+    etcdMembers:
+    - encryptedVolume: true
+      instanceGroup: control-plane-ap-northeast-2a
+      name: a
+    manager:
+      backupRetentionDays: 90
+    memoryRequest: 100Mi
+    name: events
+  iam:
+    allowContainerRegistry: true
+    legacy: false
+  kubelet:
+    anonymousAuth: false
+  kubernetesApiAccess:
+  - 10.10.10.0/24
+  kubernetesVersion: v1.27.3
+  masterPublicName: devkops.calife.co.kr
+  networkCIDR: 10.10.0.0/16
+  networkID: vpc-06c00b5930f5c7ec5
+  networking:
+    calico: {}
+  nonMasqueradeCIDR: 100.64.0.0/10
+  sshAccess:
+  - 10.10.10.0/24
+  subnets:
+  - cidr: 10.10.100.0/24
+    id: subnet-05ac1438db56987cd
+    name: ap-northeast-2a
+    type: Private
+    zone: ap-northeast-2a
+  - cidr: 10.10.50.0/24
+    id: subnet-0a4e1817c658000a6
+    name: utility-ap-northeast-2a
+    type: Utility
+    zone: ap-northeast-2a
+  topology:
+    dns:
+      type: Public
+    masters: private
+    nodes: private
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: devkops.calife.co.kr
+  name: control-plane-ap-northeast-2a
+spec:
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20230711
+  machineType: t3.medium
+  maxSize: 1
+  minSize: 1
+  role: Master
+  subnets:
+  - ap-northeast-2a
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: devkops.calife.co.kr
+  name: nodes-ap-northeast-2a
+spec:
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20230711
+  machineType: t3.medium
+  maxSize: 1
+  minSize: 1
+  role: Node
+  subnets:
+  - ap-northeast-2a
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: SSHCredential
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: devkops.calife.co.kr
+  name: admin
+spec:
+  publicKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDA5j5KpZo/T+6iw+HiIquoUt6nWkZqp4LrX58Js34qA+ucXxHJ1uwslAPwwAkd0vxpAsxFx54BxT//yuvuGfFiF9zqGsdNGbryBwz+EotiQd8kA4Hsz5qJ/A3wP1d/WcYNRf3LavFl9gixp0/8Ila/D2l7kGzvrFhz2g5/Vd5U3wFha/bLObrQOQRvNvErYe0kGfHYanLsnvZaIq0BUJULqGc279KOu1l87IFIcdfji35BHoIAPnH2sUDOS6MiOO0V57ns/EL/7Jz9jQZFujXEP2hrUJTSTDrO6tCmx8jRcSkUHDIgnnvOmFPFOkUvHvndMp6VwiESHbhKm/1Hwf8S5IPn3M5MTHm7w3h/g3481vRsc/XOzzCdFclefkvEjSHX1+x8tUhlDaDwKntFh5+L3oTo9c928wU7s59h4+JrCDKbwYdpABEycZ94k1MnNtBSHAT304QeDqzj3/+GR1Uk7uU0zqhaA0Gh5E6GDEaoePHn4AsVrbnZQO9phFEe8ESDpDrgkqPpAycCsjYNoJimIB2cosNKtmyzArbVzPicT5RBm0TMG/si1uEq/Z4eD2TeVTF6UEoV6EAd1g9GJwX1vFSfIp0PIZvI8pMIvSJzMKLZsvE1XfFb2xVzD9GmKTeK8l99fUAglW8RmoLEYi9+BtJyehvVVxPtIfb0pxtRyQ==
+    CAL-DEV-AWS-THKIM-SEOUL
